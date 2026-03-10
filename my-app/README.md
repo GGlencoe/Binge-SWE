@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Binge — Frontend
+
+Next.js 14 app with a swipe-based food discovery UI.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Swipe UI | `react-tinder-card` |
+| Auth | Supabase Auth (client-side) |
+
+---
+
+## Project Structure
+
+```
+my-app/
+├── app/
+│   ├── layout.tsx          # Root layout (fonts, global styles)
+│   ├── page.tsx            # Home / landing page
+│   └── globals.css
+├── components/
+│   ├── SwipeCard.tsx       # Individual food card
+│   └── SwipeDeck.tsx       # Deck of swipeable cards
+├── data/
+│   └── dummyData.ts        # Placeholder food data (replace with API calls)
+├── public/                 # Static assets
+├── next.config.ts
+├── tailwind.config.ts
+└── tsconfig.json
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+cd my-app
+npm install
+```
+
+### 2. Environment variables
+
+Create a `.env.local` file in `my-app/`:
+
+```env
+# Supabase public keys (safe for the browser)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+
+# Backend API base URL
+NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+```
+
+### 3. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Connecting to the Backend
 
-## Learn More
+API calls to the Express backend should go through a shared API client.
+Create `lib/apiClient.ts` that reads `NEXT_PUBLIC_API_URL` and attaches the
+Supabase JWT to every request header:
 
-To learn more about Next.js, take a look at the following resources:
+```ts
+import { supabase } from './supabaseClient';
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+export async function apiFetch(path: string, init?: RequestInit) {
+  const { data: { session } } = await supabase.auth.getSession();
+  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session?.access_token ?? ''}`,
+      ...init?.headers,
+    },
+  });
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Npm Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Script | Description |
+|---|---|
+| `npm run dev` | Start development server on port 3000 |
+| `npm run build` | Production build |
+| `npm start` | Serve production build |
+| `npm run lint` | Run ESLint |
