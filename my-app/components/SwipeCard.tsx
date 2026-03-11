@@ -36,9 +36,16 @@ export default function SwipeCard({ item }: Props) {
       </div>
 
       {/* Swipe hint */}
-      <div className="px-5 flex justify-between text-xs text-gray-300 mt-auto pb-4">
-        <span>👈 Skip</span>
-        <span>Like 👉</span>
+      <div className="px-5 flex justify-between text-xs pb-0 mt-2">
+        <div className="flex flex-col items-center leading-none bg-gradient-to-b from-red-400 to-gray-500 bg-clip-text text-transparent">
+          <p className="font-semibold m-0">Skip</p>
+          <p className="text-gray-800 text-xl m-0">←</p>
+        </div>
+
+        <div className="flex flex-col items-center leading-none bg-gradient-to-b from-green-400 to-gray-500 bg-clip-text text-transparent">
+          <p className="font-semibold m-0">Like</p>
+          <p className="text-gray-800 text-xl m-0">→</p>
+        </div>
       </div>
     </div>
   )

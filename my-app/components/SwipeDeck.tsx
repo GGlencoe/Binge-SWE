@@ -43,9 +43,9 @@ export default function SwipeDeck() {
   const onSwipe = (dir: "left" | "right", item: FoodItem) => {
     if (dir === "right") {
       setLiked((prev) => [...prev, item])
-      setLastAction(`❤️ Liked ${item.name}`)
+      setLastAction(`Liked ${item.name}`)
     } else {
-      setLastAction(`👋 Skipped ${item.name}`)
+      setLastAction(`Skipped ${item.name}`)
     }
     setItems((prev) => prev.filter((i) => i.id !== item.id))
   }
@@ -53,12 +53,14 @@ export default function SwipeDeck() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <p className="text-2xl">🎉 You've seen everything!</p>
-        <p className="text-gray-500">Liked {liked.length} items</p>
-        <button
+        <p className="text-2xl text-center bg-gradient-to-b from-blue-500 to-gray-700 bg-clip-text text-transparent">
+          You've seen everything!
+        </p>
+<p className="text-gray-500">
+  Liked {liked.length} {liked.length === 1 ? "item" : "items"}
+</p>        <button
           onClick={() => { setItems(dummyItems); setLiked([]); setLastAction(null) }}
-          className="px-6 py-2 bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition"
-        >
+          className="px-6 py-2 bg-gradient-to-br from-orange-600 to-blue-600 text-white rounded-full font-lg hover:from-orange-700 hover:to-blue-700 transition">
           Start Over
         </button>
       </div>
@@ -66,7 +68,7 @@ export default function SwipeDeck() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center">
       {/* Card Stack */}
       <div className="relative w-80 h-[480px]">
         <AnimatePresence>
@@ -81,11 +83,11 @@ export default function SwipeDeck() {
       </div>
 
       {lastAction && (
-        <p className="text-sm text-gray-500 h-5">{lastAction}</p>
+        <p className="mt-2 text-sm text-gray-500 h-5">{lastAction}</p>
       )}
 
-      <p className="text-sm text-gray-400">
-        ❤️ {liked.length} liked · {items.length} remaining
+      <p className="mt-2 text-sm text-gray-500 h-5">
+        {liked.length} liked · {items.length} remaining
       </p>
     </div>
   )
