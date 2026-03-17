@@ -127,6 +127,11 @@ npm run dev            # http://localhost:3000
 
 ---
 
+## Link to repo
+https://github.com/GGlencoe/Binge-SWE
+
+---
+
 ## Team
 
 Developed as part of CSCI-3300 Software Engineering at Saint Louis University.
