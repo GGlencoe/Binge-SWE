@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion"
 import SwipeCard from "./SwipeCard"
-import { dummyItems, FoodItem } from "@/data/dummyData"
+import { FoodItem } from "@/data/dummyData"
 
 function DraggableCard({
   item,
@@ -35,8 +35,8 @@ function DraggableCard({
   )
 }
 
-export default function SwipeDeck() {
-  const [items, setItems] = useState<FoodItem[]>(dummyItems)
+export default function SwipeDeck({ items: initialItems }: { items: FoodItem[] }) {
+  const [items, setItems] = useState<FoodItem[]>(initialItems)
   const [liked, setLiked] = useState<FoodItem[]>([])
   const [lastAction, setLastAction] = useState<string | null>(null)
 
@@ -56,10 +56,11 @@ export default function SwipeDeck() {
         <p className="text-2xl text-center bg-gradient-to-b from-blue-500 to-gray-700 bg-clip-text text-transparent">
           You've seen everything!
         </p>
-<p className="text-gray-500">
-  Liked {liked.length} {liked.length === 1 ? "item" : "items"}
-</p>        <button
-          onClick={() => { setItems(dummyItems); setLiked([]); setLastAction(null) }}
+        <p className="text-gray-500">
+          Liked {liked.length} {liked.length === 1 ? "item" : "items"}
+        </p>
+        <button
+          onClick={() => { setItems(initialItems); setLiked([]); setLastAction(null) }}
           className="px-6 py-2 bg-gradient-to-br from-orange-600 to-blue-600 text-white rounded-full font-lg hover:from-orange-700 hover:to-blue-700 transition">
           Start Over
         </button>
@@ -69,10 +70,9 @@ export default function SwipeDeck() {
 
   return (
     <div className="flex flex-col items-center">
-      {/* Card Stack */}
       <div className="relative w-80 h-[480px]">
         <AnimatePresence>
-          {items.map((item, index) => (
+          {items.map((item) => (
             <DraggableCard
               key={item.id}
               item={item}
