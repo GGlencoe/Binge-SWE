@@ -1,4 +1,5 @@
 import SwipeDeck from "@/components/SwipeDeck"
+import { foodItems } from "@/data/dummyData"
 
 export default function RecipesPage() {
   return (
@@ -14,7 +15,7 @@ export default function RecipesPage() {
   <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
 </p>
 
-      <SwipeDeck />
+      <SwipeDeck items={foodItems} />
     </main>
   )
 }

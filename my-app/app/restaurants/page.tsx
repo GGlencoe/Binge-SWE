@@ -1,6 +1,7 @@
 import SwipeDeck from "@/components/SwipeDeck"
+import { restaurantItems } from "@/data/dummyData"
 
-export default function ProfilePage() {
+export default function RecipesPage() {
   return (
     <main className="min-h-screen bg-orange-50 flex flex-col items-center justify-center p-8">
 
@@ -11,9 +12,10 @@ export default function ProfilePage() {
 
 
       <p className="mb-4 text-sm text-center bg-gradient-to-b from-blue-500 to-gray-700 bg-clip-text text-transparent">
-Nearby Restaurants will be here! (This page is under construction)
+  <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
 </p>
 
+      <SwipeDeck items={restaurantItems} />
     </main>
   )
 }
