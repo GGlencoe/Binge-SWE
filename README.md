@@ -8,14 +8,16 @@ An interactive food discovery platform where users swipe through restaurant and 
 
 ```
 Binge-SWE/
-├── my-app/      # Frontend — Next.js 14 (App Router, TypeScript, Tailwind)
-├── backend/     # Backend  — Express + Supabase (PostgreSQL, TypeScript)
+├── web/         # Web frontend  — Next.js (App Router, TypeScript, Tailwind CSS)
+├── mobile/      # Mobile app    — Expo / React Native (TypeScript)
+├── backend/     # Backend API   — Express + Supabase (PostgreSQL, TypeScript)
 └── README.md
 ```
 
 Each subdirectory has its own README with setup instructions:
 
-- [Frontend README](my-app/README.md)
+- [Web README](web/README.md)
+- [Mobile README](mobile/README.md)
 - [Backend README](backend/README.md)
 
 ---
@@ -32,14 +34,14 @@ The platform adapts to:
 
 ---
 
-## Key Features (Planned)
+## Key Features
 
 | Feature | Status |
 |---|---|
 | Swipe-based food discovery | In progress |
+| Bottom navigation (Recipes / Profile / Restaurants) | In progress |
 | Personalized onboarding | Planned |
 | Restaurant recommendations | Planned |
-| Recipe discovery | Planned |
 | Favorites system | Planned |
 | AI food assistant | Planned |
 
@@ -49,22 +51,22 @@ The platform adapts to:
 
 ```
 ┌─────────────────────┐        JWT        ┌──────────────────────────┐
-│   Next.js Frontend  │ ───────────────── │   Express Backend        │
-│   (my-app/)         │   REST /api/v1    │   (backend/)             │
+│   Web Frontend      │ ───────────────── │   Express Backend        │
+│   (web/)            │   REST /api/v1    │   (backend/)             │
 │                     │                   │                          │
 │  - Swipe UI         │                   │  - Auth middleware        │
 │  - Supabase Auth    │                   │  - User / Swipe / Fav    │
 │  - API client       │                   │  - Recommendations       │
 └─────────────────────┘                   └──────────┬───────────────┘
                                                      │ Supabase JS
-                                          ┌──────────▼───────────────┐
-                                          │   Supabase (PostgreSQL)  │
-                                          │                          │
-                                          │  profiles                │
-                                          │  user_preferences        │
-                                          │  foods                   │
-                                          │  swipes                  │
-                                          │  favorites               │
+┌─────────────────────┐                   ┌──────────▼───────────────┐
+│   Mobile App        │ ───────────────── │   Supabase (PostgreSQL)  │
+│   (mobile/)         │   REST /api/v1    │                          │
+│                     │        JWT        │  profiles                │
+│  - Swipe UI         │                   │  user_preferences        │
+│  - Supabase Auth    │                   │  foods                   │
+│  - API client       │                   │  swipes                  │
+└─────────────────────┘                   │  favorites               │
                                           └──────────────────────────┘
 ```
 
@@ -95,13 +97,20 @@ npm install
 npm run dev            # http://localhost:4000
 ```
 
-### 4. Start the frontend
+### 4. Start the web app
 
 ```bash
-cd my-app
-# create .env.local with NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_API_URL
+cd web
 npm install
 npm run dev            # http://localhost:3000
+```
+
+### 5. Start the mobile app
+
+```bash
+cd mobile
+npm install
+npx expo start         # scan QR code with Expo Go
 ```
 
 ---
@@ -110,10 +119,11 @@ npm run dev            # http://localhost:3000
 
 | Area | Technology |
 |---|---|
-| Frontend | Next.js 14, TypeScript, Tailwind CSS, react-tinder-card |
+| Web frontend | Next.js 16, TypeScript, Tailwind CSS, Framer Motion, lucide-react |
+| Mobile app | Expo SDK 52, React Native, Expo Router, Reanimated, Gesture Handler |
 | Backend | Node.js, Express 4, TypeScript |
 | Database | PostgreSQL (via Supabase) |
-| Auth | Supabase Auth |
+| Auth | Supabase Auth (JWT) |
 | External APIs | Yelp / Google Places (restaurants), Spoonacular / Edamam (recipes) |
 
 ---

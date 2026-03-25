@@ -1,0 +1,24 @@
+Sprint 1 Review
+Date: Mar 11, 2026
+---
+
+Goal: Establish the foundational project infrastructure — repo, frontend scaffold, swipe UI, and database/backend setup.
+
+Completed:
+- GitHub repo initialized with branching structure
+- Next.js frontend project scaffolded
+- Swipe card UI implemented using react-tinder-card (SwipeCard + SwipeDeck components)
+- Express + TypeScript backend initialized
+- Supabase project connected with full Postgres schema (profiles, preferences, foods, swipes, favorites)
+- JWT auth middleware and REST API routes set up
+- Project documentation written (READMEs)
+
+Not Completed:
+- Vercel deployment — ran into configuration issues, carried over to Sprint 2
+
+Demo Notes:
+- Swipe UI functional locally with dummy data
+- Backend server runs and connects to Supabase
+- All schema migrations ready to run against Supabase project
+
+ 

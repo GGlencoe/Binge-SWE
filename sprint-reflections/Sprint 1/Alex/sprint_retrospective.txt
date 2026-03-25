@@ -1,0 +1,21 @@
+Sprint 1 Retrospective
+Date: Mar 11, 2026
+---
+
+What went well:
+- Good split of work between frontend and backend from the start
+- Backend structure is clean and scalable going into Sprint 2
+- DB schema covers all the core features planned for the app
+- Git workflow (branching, PRs) was followed consistently
+
+What didn't go well:
+- There was confusion around when the sprint officially started — the team was still in planning mode for the first week
+- Vercel deployment didn't get finished in time
+- Standups were not happening every day, more like every few days
+
+What to improve:
+- Confirm sprint start date with the professor at the beginning of each sprint
+- Be more consistent with daily standups
+- Break deployment tasks into smaller subtasks so blockers are caught earlier
+
+

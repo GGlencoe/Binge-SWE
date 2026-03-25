@@ -1,4 +1,8 @@
 node_modules/
 dist/
-.env
 *.js.map
+
+# env
+.env
+.env.local
+.env.*

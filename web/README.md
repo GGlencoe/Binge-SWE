@@ -1,6 +1,6 @@
-# Binge — Frontend
+# Binge — Web
 
-Next.js 14 app with a swipe-based food discovery UI.
+Next.js web app with a swipe-based food discovery UI.
 
 ---
 
@@ -8,10 +8,11 @@ Next.js 14 app with a swipe-based food discovery UI.
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
-| Swipe UI | `react-tinder-card` |
+| Styling | Tailwind CSS 4 |
+| Swipe animation | Framer Motion |
+| Icons | lucide-react |
 | Auth | Supabase Auth (client-side) |
 
 ---
@@ -19,19 +20,27 @@ Next.js 14 app with a swipe-based food discovery UI.
 ## Project Structure
 
 ```
-my-app/
+web/
 ├── app/
-│   ├── layout.tsx          # Root layout (fonts, global styles)
-│   ├── page.tsx            # Home / landing page
-│   └── globals.css
+│   ├── layout.tsx              # Root layout (fonts, global styles, bottom nav)
+│   ├── page.tsx                # Redirects to /recipes
+│   ├── globals.css
+│   ├── recipes/
+│   │   └── page.tsx            # Swipe deck screen
+│   ├── profile/
+│   │   └── page.tsx            # Profile screen (under construction)
+│   └── restaurants/
+│       └── page.tsx            # Restaurants screen (under construction)
 ├── components/
-│   ├── SwipeCard.tsx       # Individual food card
-│   └── SwipeDeck.tsx       # Deck of swipeable cards
+│   ├── SwipeCard.tsx           # Individual food card
+│   ├── SwipeDeck.tsx           # Draggable deck of cards
+│   └── navBar.tsx              # Fixed bottom navigation bar
 ├── data/
-│   └── dummyData.ts        # Placeholder food data (replace with API calls)
-├── public/                 # Static assets
+│   └── dummyData.ts            # Placeholder food data (replace with API calls)
+├── public/
+│   └── bingeLogo.png
 ├── next.config.ts
-├── tailwind.config.ts
+├── postcss.config.mjs
 └── tsconfig.json
 ```
 
@@ -42,13 +51,13 @@ my-app/
 ### 1. Install dependencies
 
 ```bash
-cd my-app
+cd web
 npm install
 ```
 
 ### 2. Environment variables
 
-Create a `.env.local` file in `my-app/`:
+Create a `.env.local` file in `web/`:
 
 ```env
 # Supabase public keys (safe for the browser)

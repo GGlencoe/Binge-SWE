@@ -1,0 +1,10 @@
+Sprint 1 Personal Reflection
+Alex
+
+For Sprint 1, my main responsibility was setting up the Supabase project and the backend infrastructure. I had not used Supabase or PostgreSQL before, so I spent some time at the beginning reading documentation and planning the database schema before starting implementation.
+
+After that, I set up an Express server with TypeScript and connected it to Supabase. I designed the database tables to support the main features of the app, including user profiles, preferences, swipe history, and favorites. I also added JWT authentication middleware so the API routes are protected and tied to user sessions.
+
+One part I am happy with is the database schema. I tried to design the relationships between tables carefully and added Row Level Security so users can only access their own data.
+
+The biggest challenge during the sprint was the timing. Our team did not realize the sprint had already started, which meant we had less time to finish everything. In the future, I want to make sure we confirm sprint start dates and begin implementation earlier.

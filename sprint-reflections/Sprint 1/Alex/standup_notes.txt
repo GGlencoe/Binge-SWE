@@ -1,0 +1,28 @@
+Sprint 1 Daily Standup Notes
+Duration: Feb 24 – Mar 11, 2026
+---
+
+Feb 24
+- Garrett: Setting up the GitHub repo, initializing Next.js project
+- Alex: Planning backend structure and Supabase DB schema
+- Justin: Reviewed sprint backlog with the team, gave input on DB table structure
+
+Feb 27
+- Garrett: Next.js init done, starting on swipe card components
+- Alex: Initialized Express backend with TypeScript config
+- Justin: Researched Vercel deployment options, shared notes with the team
+
+Mar 3
+- Garrett: SwipeDeck component in progress, dummy data wired up
+- Alex: Supabase client configured, writing schema migration files
+- Justin: Helped Garrett test swipe card interactions, flagged a few UI edge cases
+
+Mar 6
+- Garrett: Swipe UI complete, ready to merge
+- Alex: Auth middleware done, building out API routes and controllers
+- Justin: Looked into Vercel + Next.js deployment config, will assist with setup
+
+Mar 10
+- Garrett: Swipe UI merged to main
+- Alex: Backend routes, services, and documentation complete, merged to main
+- Justin: Vercel deployment in progress, ran into config issues, continuing tomorrow

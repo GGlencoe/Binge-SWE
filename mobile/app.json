@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Binge",
+    "slug": "binge",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "binge",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.binge.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.binge.app"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
