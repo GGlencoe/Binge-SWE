@@ -8,15 +8,8 @@ An interactive food discovery platform where users swipe through restaurant and 
 
 ```
 Binge-SWE/
-├── my-app/      # Frontend — Next.js 14 (App Router, TypeScript, Tailwind)
-├── backend/     # Backend  — Express + Supabase (PostgreSQL, TypeScript)
-└── README.md
+└── my-app/      # Next.js 14 (App Router, TypeScript, Tailwind, Supabase)
 ```
-
-Each subdirectory has its own README with setup instructions:
-
-- [Frontend README](my-app/README.md)
-- [Backend README](backend/README.md)
 
 ---
 
@@ -45,63 +38,78 @@ The platform adapts to:
 
 ---
 
-## Architecture Overview
+## Architecture
 
 ```
-┌─────────────────────┐        JWT        ┌──────────────────────────┐
-│   Next.js Frontend  │ ───────────────── │   Express Backend        │
-│   (my-app/)         │   REST /api/v1    │   (backend/)             │
-│                     │                   │                          │
-│  - Swipe UI         │                   │  - Auth middleware        │
-│  - Supabase Auth    │                   │  - User / Swipe / Fav    │
-│  - API client       │                   │  - Recommendations       │
-└─────────────────────┘                   └──────────┬───────────────┘
-                                                     │ Supabase JS
-                                          ┌──────────▼───────────────┐
-                                          │   Supabase (PostgreSQL)  │
-                                          │                          │
-                                          │  profiles                │
-                                          │  user_preferences        │
-                                          │  foods                   │
-                                          │  swipes                  │
-                                          │  favorites               │
-                                          └──────────────────────────┘
+┌──────────────────────────────────────────┐
+│   Next.js (my-app/)                      │
+│                                          │
+│  Pages / Components (React)              │
+│  ↕                                       │
+│  /app/api/* (Next.js Route Handlers)     │
+│  ↕                                       │
+│  Supabase JS client (server-side)        │
+└──────────────────┬───────────────────────┘
+                   │
+      ┌────────────▼────────────┐
+      │  Supabase (PostgreSQL)  │
+      │                         │
+      │  profiles               │
+      │  user_preferences       │
+      │  foods                  │
+      │  swipes                 │
+      │  favorites              │
+      │  RLS enabled            │
+      └─────────────────────────┘
 ```
+
+---
+
+## API Routes
+
+| Method | Route | Description |
+|---|---|---|
+| GET | `/api/users/me` | Get current user profile |
+| PUT | `/api/users/me` | Update profile |
+| GET | `/api/users/me/preferences` | Get dietary/cuisine preferences |
+| PUT | `/api/users/me/preferences` | Save preferences |
+| POST | `/api/swipes` | Record a swipe |
+| GET | `/api/swipes` | Swipe history (paginated) |
+| GET | `/api/favorites` | List favorites |
+| POST | `/api/favorites` | Add a favorite |
+| DELETE | `/api/favorites/:foodId` | Remove a favorite |
+| GET | `/api/recommendations` | Get personalized food recommendations |
 
 ---
 
 ## Quick Start
 
-### 1. Clone the repo
+### 1. Clone
 
 ```bash
-git clone <repo-url>
-cd Binge-SWE
+git clone https://github.com/GGlencoe/Binge-SWE
+cd Binge-SWE/my-app
 ```
 
-### 2. Set up the database
+### 2. Set up Supabase
 
 1. Create a free project at [supabase.com](https://supabase.com)
-2. Open the SQL Editor in your Supabase dashboard
-3. Run each file in `backend/src/db/schema/` in order (001 → 005)
-4. Optionally run `backend/src/db/seed/seed.sql` for sample data
+2. Open **SQL Editor** in your Supabase dashboard
+3. Run each file in `my-app/db/` **in order** (001 → 005)
+4. Optionally run `db/seed.sql` for sample data
 
-### 3. Start the backend
+### 3. Configure environment
 
 ```bash
-cd backend
-cp .env.example .env   # fill in your Supabase keys
-npm install
-npm run dev            # http://localhost:4000
+cp .env.local.example .env.local
+# Fill in your Supabase credentials (see .env.local.example for field descriptions)
 ```
 
-### 4. Start the frontend
+### 4. Run
 
 ```bash
-cd my-app
-# create .env.local with NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_API_URL
 npm install
-npm run dev            # http://localhost:3000
+npm run dev   # http://localhost:3000
 ```
 
 ---
@@ -110,11 +118,13 @@ npm run dev            # http://localhost:3000
 
 | Area | Technology |
 |---|---|
-| Frontend | Next.js 14, TypeScript, Tailwind CSS, react-tinder-card |
-| Backend | Node.js, Express 4, TypeScript |
-| Database | PostgreSQL (via Supabase) |
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Animation | Framer Motion |
+| Database | PostgreSQL via Supabase |
 | Auth | Supabase Auth |
-| External APIs | Yelp / Google Places (restaurants), Spoonacular / Edamam (recipes) |
+| Icons | Lucide React |
 
 ---
 
@@ -128,6 +138,7 @@ npm run dev            # http://localhost:3000
 ---
 
 ## Link to repo
+
 https://github.com/GGlencoe/Binge-SWE
 
 ---
