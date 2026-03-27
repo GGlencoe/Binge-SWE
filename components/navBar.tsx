@@ -7,10 +7,12 @@ import { Utensils, User, Store } from "lucide-react";
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith('/login') || pathname.startsWith('/auth')) return null
+
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+    <nav className="z-50 fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
       <div className="flex justify-around items-center h-16 max-w-2xl mx-auto px-4">
         
     
