@@ -7,6 +7,8 @@ import { Utensils, User, Store } from "lucide-react";
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith('/login') || pathname.startsWith('/auth')) return null
+
   const isActive = (path: string) => pathname === path;
 
   return (
