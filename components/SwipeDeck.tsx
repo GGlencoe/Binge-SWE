@@ -1,26 +1,27 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion"
 import SwipeCard from "./SwipeCard"
-import { FoodItem } from "@/data/dummyData"
+import { Food, FoodType } from "@/types/database"
 import { Heart, X, Undo } from "lucide-react"
+
+// ─── Draggable wrapper ────────────────────────────────────────────────────────
 
 function DraggableCard({
   item,
   onSwipe,
-  shadow = "shadow-2xl"
-
+  shadow,
 }: {
-  item: FoodItem
-  onSwipe: (dir: "left" | "right", item: FoodItem) => void
+  item: Food
+  onSwipe: (dir: "left" | "right", item: Food) => void
   shadow: string
 }) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-25, 25])
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
 
-  const handleDragEnd = (_: any, info: any) => {
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
     if (info.offset.x > 100) onSwipe("right", item)
     else if (info.offset.x < -100) onSwipe("left", item)
   }
@@ -39,56 +40,119 @@ function DraggableCard({
   )
 }
 
-export default function SwipeDeck({ items: initialItems }: { items: FoodItem[] }) {
-  const [items, setItems] = useState<FoodItem[]>(initialItems)
-  const [liked, setLiked] = useState<FoodItem[]>([])
-  const [history, setHistory] = useState<FoodItem[]>([])
-  const [lastAction, setLastAction] = useState<string | null>(null)
+// ─── SwipeDeck ────────────────────────────────────────────────────────────────
 
-  const handleSwipe = (dir: "left" | "right") => {
+interface SwipeDeckProps {
+  /**
+   * Filter cards to a specific food type ('recipe' | 'restaurant' | 'dish').
+   * Omit to show all types. This is the only prop you need to change to
+   * support a new category — no other component changes required.
+   */
+  foodType?: FoodType
+}
+
+export default function SwipeDeck({ foodType }: SwipeDeckProps) {
+  const [items, setItems] = useState<Food[]>([])
+  const [history, setHistory] = useState<Food[]>([])
+  const [lastAction, setLastAction] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // The full fetched pool — used to cycle when the deck runs out
+  const pool = useRef<Food[]>([])
+
+  // ── Initial fetch ────────────────────────────────────────────────────────
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/recommendations")
+        if (!res.ok) return
+        const { data } = await res.json()
+
+        let foods: Food[] = data ?? []
+
+        // Filter client-side by foodType if provided.
+        // When the API gains a native type filter, move it server-side here.
+        if (foodType) {
+          foods = foods.filter((f) => f.type === foodType)
+        }
+
+        pool.current = foods
+        setItems([...foods])
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [foodType])
+
+  // ── Auto-cycle when deck is empty ────────────────────────────────────────
+  // Wait 1.5 s before cycling so the user can still hit Undo on the last card.
+  // If Undo is pressed within that window, items.length becomes > 0 and the
+  // cleanup function cancels the timer before it fires.
+  useEffect(() => {
+    if (!loading && items.length === 0 && pool.current.length > 0) {
+      const t = setTimeout(() => {
+        setItems([...pool.current])
+        setHistory([])
+        setLastAction("Starting over! 🔄")
+      }, 1500)
+      return () => clearTimeout(t)
+    }
+  }, [items.length, loading])
+
+  // ── Swipe handlers ───────────────────────────────────────────────────────
+  const onSwipe = (dir: "left" | "right", item: Food) => {
+    setHistory((prev) => [...prev, item])
+    setItems((prev) => prev.filter((i) => i.id !== item.id))
+    setLastAction(dir === "right" ? `Liked ${item.name}` : `Skipped ${item.name}`)
+  }
+
+  const handleSwipeButton = (dir: "left" | "right") => {
     const topItem = items[items.length - 1]
     if (!topItem) return
-
     onSwipe(dir, topItem)
   }
 
-  const onSwipe = (dir: "left" | "right", item: FoodItem) => {
-    setHistory((prev) => [...prev, item])
-
-    if (dir === "right") {
-      setLiked((prev) => [...prev, item])
-      setLastAction(`Liked ${item.name}`)
-    } else {
-      setLastAction(`Skipped ${item.name}`)
-    }
-
-    setItems((prev) => prev.filter((i) => i.id !== item.id))
-  }
-
+  // Unlimited undo — walks back through the full history
   const handleUndo = () => {
     if (history.length === 0) return
-
     const lastItem = history[history.length - 1]
-
     setHistory((prev) => prev.slice(0, -1))
-
-    // put back on top
     setItems((prev) => [...prev, lastItem])
-
-    setLastAction(`Undo ${lastItem.name}`)
+    setLastAction(`Undo — ${lastItem.name}`)
   }
-  useEffect(() => {
-    if (items.length === 0) {
-      setItems(initialItems)
-    }
-  }, [items, initialItems])
 
+  // ── Loading state ────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="w-80 h-[480px] rounded-2xl bg-white shadow-sm flex items-center justify-center">
+          <p className="text-gray-400 text-sm animate-pulse">Loading…</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Empty DB state (no items of this type exist yet) ─────────────────────
+  if (pool.current.length === 0) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="w-80 h-[480px] rounded-2xl bg-white shadow-sm flex flex-col items-center justify-center gap-3 text-gray-400">
+          <span className="text-5xl">🍽️</span>
+          <p className="text-sm">No items available yet.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Main deck ────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-80 h-[480px]">
         <AnimatePresence>
           {items.map((item, index) => {
-            const isTop = index === items.length - 1; // last item in array
+            const isTop = index === items.length - 1
             return (
               <DraggableCard
                 key={item.id}
@@ -101,29 +165,36 @@ export default function SwipeDeck({ items: initialItems }: { items: FoodItem[] }
         </AnimatePresence>
       </div>
 
+      {/* Action buttons */}
       <div className="flex gap-4 mt-4 z-10">
         <button
-          onClick={() => handleSwipe("left")}
-          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+          onClick={() => handleSwipeButton("left")}
+          disabled={items.length === 0}
+          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform disabled:opacity-40"
         >
           <X className="w-8 h-8 text-red-500" />
         </button>
 
         <button
           onClick={handleUndo}
-          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
           disabled={history.length === 0}
+          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform disabled:opacity-40"
         >
           <Undo className="w-8 h-8 text-blue-500" />
         </button>
 
         <button
-          onClick={() => handleSwipe("right")}
-          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+          onClick={() => handleSwipeButton("right")}
+          disabled={items.length === 0}
+          className="bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform disabled:opacity-40"
         >
           <Heart className="w-8 h-8 text-green-500" />
         </button>
       </div>
+
+      {lastAction && (
+        <p className="mt-3 text-sm text-gray-400 italic">{lastAction}</p>
+      )}
     </div>
   )
 }

@@ -1,21 +1,24 @@
-import SwipeDeck from "@/components/SwipeDeck"
-import { restaurantItems } from "@/data/dummyData"
+"use client"
 
-export default function RecipesPage() {
+import SwipeDeck from "@/components/SwipeDeck"
+
+export default function RestaurantsPage() {
   return (
     <main className="min-h-screen bg-orange-50 flex flex-col items-center justify-center p-8">
 
       {/* Logo */}
       <div>
-        <img src="/bingeLogo.png" alt="Binge" className="mt-2 h-32 w-auto"/>
+        <img src="/bingeLogo.png" alt="Binge" className="mt-2 h-32 w-auto" />
       </div>
 
-
       <p className="mb-4 text-sm text-center bg-gradient-to-b from-blue-500 to-gray-700 bg-clip-text text-transparent">
-  <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
-</p>
+        <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
+      </p>
 
-      <SwipeDeck items={restaurantItems} />
+      {/* TODO: When restaurant rows exist in foods table (type='restaurant'),
+          this page will automatically start showing them — no code changes needed. */}
+      <SwipeDeck foodType="restaurant" />
+
     </main>
   )
 }

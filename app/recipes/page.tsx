@@ -1,5 +1,6 @@
+"use client"
+
 import SwipeDeck from "@/components/SwipeDeck"
-import { foodItems } from "@/data/dummyData"
 
 export default function RecipesPage() {
   return (
@@ -7,15 +8,17 @@ export default function RecipesPage() {
 
       {/* Logo */}
       <div>
-        <img src="/bingeLogo.png" alt="Binge" className="mt-2 h-32 w-auto"/>
+        <img src="/bingeLogo.png" alt="Binge" className="mt-2 h-32 w-auto" />
       </div>
 
-
       <p className="mb-4 text-sm text-center bg-gradient-to-b from-blue-500 to-gray-700 bg-clip-text text-transparent">
-  <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
-</p>
+        <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
+      </p>
 
-      <SwipeDeck items={foodItems} />
+      {/* foodType="recipe" filters the deck to recipe rows only.
+          Change to "dish" or remove the prop entirely to show all types. */}
+      <SwipeDeck foodType="recipe" />
+
     </main>
   )
 }
