@@ -1,6 +1,26 @@
 import { Heart, Utensils, Store } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Profile() {
+export default async function Profile() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let username = "User";
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.username) {
+      username = profile.username;
+    }
+  }
 
   /*  
   Conceptually we would fetch the user's liked recipes and restaurants from a backend or local storage, and then calculate the counts to display in the stats section. For example:
@@ -44,7 +64,7 @@ export default function Profile() {
           <div className="w-24 h-24 bg-orange-300 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-4xl">👨‍🍳</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Profile Name</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{username}</h1>
         </div>
 
         {/* Stats */}

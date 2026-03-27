@@ -8,7 +8,7 @@ export default function SwipeCard({ item }: Props) {
   return (
   <div className="w-80 h-[480px] rounded-2xl overflow-hidden bg-white select-none cursor-grab active:cursor-grabbing flex flex-col">
   {/* Image - fixed height */}
-  <div className="relative w-full h-64">
+  <div className="relative w-full h-64 shrink-0">
     <img
       src={item.image}
       alt={item.name}
@@ -18,10 +18,12 @@ export default function SwipeCard({ item }: Props) {
   </div>
 
   {/* Content - scroll if too long */}
-  <div className="p-5 flex flex-col gap-3 overflow-y-auto">
-    <h2 className="text-2xl font-bold text-gray-800">{item.name}</h2>
-    <p className="text-gray-500 text-sm">{item.description}</p>
-    <div className="flex flex-wrap gap-2 mt-1">
+  <div className="p-5 flex flex-col gap-3 flex-1 overflow-hidden pb-1">
+    <h2 className="text-2xl font-bold text-gray-800 shrink-0">{item.name}</h2>
+    <div className="overflow-y-auto flex-1 pr-2">
+      <p className="text-gray-500 text-sm break-words whitespace-pre-wrap">{item.description}</p>
+    </div>
+    <div className="flex flex-wrap gap-2 mt-1 shrink-0">
       {item.tags.map((tag) => (
         <span
           key={tag}
