@@ -1,6 +1,23 @@
 import { NextResponse } from 'next/server'
 import { Food } from '@/types/database'
 
+interface GooglePlace {
+  place_id: string
+  name: string
+  formatted_address: string
+  types?: string[]
+  photos?: Array<{ photo_reference: string }>
+  price_level?: number
+  rating?: number
+  geometry?: {
+    location?: {
+      lat: number
+      lng: number
+    }
+  }
+  user_ratings_total?: number
+}
+
 const FOOD_KEYWORDS = [
   'american', 'mexican', 'italian', 'chinese', 'japanese', 'thai', 'indian', 'korean', 'mediterranean',
   'burgers', 'fries', 'nachos', 'pizza', 'ice cream', 'coffee', 'steak', 'breakfast', 'brunch',
@@ -32,12 +49,12 @@ export async function GET(request: Request) {
     results = results.slice(0, 10)
 
     // Fetch details concurrently for description and custom keyword extraction
-    const detailedResults = await Promise.all(results.map(async (place: any) => {
+    const detailedResults = await Promise.all(results.map(async (place: GooglePlace) => {
       try {
         const dres = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=editorial_summary,reviews&key=${apiKey}`)
         const djson = await dres.json()
         return { place, detail: djson.result || {} }
-      } catch (err) {
+      } catch {
         return { place, detail: {} }
       }
     }))
@@ -53,13 +70,13 @@ export async function GET(request: Request) {
       // Concatenate summary and reviews to extract keywords
       const textBlob = [
         detail.editorial_summary?.overview || '',
-        ...(detail.reviews || []).map((r: any) => r.text)
+        ...(detail.reviews || []).map((r: { text: string }) => r.text)
       ].join(' ').toLowerCase()
 
       const matchedTags = FOOD_KEYWORDS.filter(kw => textBlob.includes(kw))
 
       // Convert Google types to tags as a fallback
-      let fallbackTags = (place.types || [])
+      const fallbackTags = (place.types || [])
         .filter((t: string) => t !== 'point_of_interest' && t !== 'establishment')
         .map((t: string) => t.replace(/_/g, ' '))
         .slice(0, 3)
@@ -94,7 +111,8 @@ export async function GET(request: Request) {
     })
 
     return NextResponse.json({ data: processedData })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const error = err as Error
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

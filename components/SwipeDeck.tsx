@@ -90,7 +90,7 @@ export default function SwipeDeck({ foodType, apiEndpoint }: SwipeDeckProps) {
       }
     }
     load()
-  }, [foodType])
+  }, [foodType, apiEndpoint])
 
   // ── Auto-cycle when deck is empty ────────────────────────────────────────
   // Wait 1.5 s before cycling so the user can still hit Undo on the last card.

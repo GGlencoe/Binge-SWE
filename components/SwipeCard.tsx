@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Food } from "@/types/database"
 
 type Props = {
