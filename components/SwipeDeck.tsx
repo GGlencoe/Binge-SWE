@@ -49,9 +49,14 @@ interface SwipeDeckProps {
    * support a new category — no other component changes required.
    */
   foodType?: FoodType
+  /**
+   * Optional custom API endpoint to pull items from (e.g. /api/places).
+   * Defaults to /api/recommendations if not provided.
+   */
+  apiEndpoint?: string
 }
 
-export default function SwipeDeck({ foodType }: SwipeDeckProps) {
+export default function SwipeDeck({ foodType, apiEndpoint }: SwipeDeckProps) {
   const [items, setItems] = useState<Food[]>([])
   const [history, setHistory] = useState<Food[]>([])
   const [lastAction, setLastAction] = useState<string | null>(null)
@@ -65,7 +70,8 @@ export default function SwipeDeck({ foodType }: SwipeDeckProps) {
     async function load() {
       setLoading(true)
       try {
-        const res = await fetch("/api/recommendations")
+        const url = apiEndpoint || "/api/recommendations"
+        const res = await fetch(url)
         if (!res.ok) return
         const { data } = await res.json()
 
@@ -84,7 +90,7 @@ export default function SwipeDeck({ foodType }: SwipeDeckProps) {
       }
     }
     load()
-  }, [foodType])
+  }, [foodType, apiEndpoint])
 
   // ── Auto-cycle when deck is empty ────────────────────────────────────────
   // Wait 1.5 s before cycling so the user can still hit Undo on the last card.
