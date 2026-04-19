@@ -15,9 +15,8 @@ export default function RestaurantsPage() {
         <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
       </p>
 
-      {/* TODO: When restaurant rows exist in foods table (type='restaurant'),
-          this page will automatically start showing them — no code changes needed. */}
-      <SwipeDeck foodType="restaurant" />
+      {/* This page pulls live restaurant data from Google Maps API */}
+      <SwipeDeck foodType="restaurant" apiEndpoint="/api/places" />
 
     </main>
   )
