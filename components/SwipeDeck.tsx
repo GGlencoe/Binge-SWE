@@ -48,9 +48,11 @@ function DraggableCard({
 
 interface SwipeDeckProps {
   mode?: "food" | "restaurant"
+  /** Optional custom API endpoint (e.g. /api/places). Overrides the default. */
+  apiEndpoint?: string
 }
 
-export default function SwipeDeck({ mode = "food" }: SwipeDeckProps) {
+export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps) {
   const [items, setItems] = useState<SwipeableItem[]>([])
   const [history, setHistory] = useState<SwipeableItem[]>([])
   const [lastAction, setLastAction] = useState<string | null>(null)
@@ -63,7 +65,7 @@ export default function SwipeDeck({ mode = "food" }: SwipeDeckProps) {
   const load = async () => {
     setLoading(true)
     try {
-      const endpoint = mode === "restaurant" ? "/api/restaurants" : "/api/recommendations"
+      const endpoint = apiEndpoint ?? (mode === "restaurant" ? "/api/restaurants" : "/api/recommendations")
       const res = await fetch(endpoint)
       if (!res.ok) return
       const { data } = await res.json()
@@ -76,7 +78,7 @@ export default function SwipeDeck({ mode = "food" }: SwipeDeckProps) {
     }
   }
 
-  useEffect(() => { load() }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [mode, apiEndpoint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Re-fetch when deck empties (gets fresh algorithm results) ────────────
   useEffect(() => {
@@ -96,18 +98,20 @@ export default function SwipeDeck({ mode = "food" }: SwipeDeckProps) {
     setLastAction(dir === "right" ? `Liked ${item.name}` : `Skipped ${item.name}`)
 
     const direction = dir === "right" ? "like" : "skip"
-    if (mode === "restaurant") {
-      fetch("/api/restaurantswipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ restaurant_id: item.id, direction }),
-      })
-    } else {
-      fetch("/api/foodswipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ food_id: item.id, direction }),
-      })
+    if (!apiEndpoint) {
+      if (mode === "restaurant") {
+        fetch("/api/restaurantswipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ restaurant_id: item.id, direction }),
+        })
+      } else {
+        fetch("/api/foodswipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ food_id: item.id, direction }),
+        })
+      }
     }
   }
 

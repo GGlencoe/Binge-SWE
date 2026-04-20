@@ -32,6 +32,7 @@ export interface FoodLocation {
 /** Shared fields used by SwipeCard / SwipeDeck */
 export interface SwipeableItem {
   id: string
+  external_id?: string | null
   name: string
   description: string | null
   image_url: string | null
