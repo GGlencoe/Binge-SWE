@@ -114,6 +114,25 @@ npm run dev   # http://localhost:3000
 
 ---
 
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local development server at http://localhost:3000 |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run seed-recipes` | Fetch recipes from Spoonacular and upsert into Supabase |
+| `npm run seed-recipes -- --dry-run` | Preview what would be seeded without writing to the DB |
+
+### Seeding recipes
+
+Spoonacular's free tier allows **150 API points per day**. Each seed run costs ~99 points (9 cuisines × ~11 calls). Run at most once daily.
+
+Use `--dry-run` to verify output without consuming your write quota or hitting the database. The flag still fetches from Spoonacular, so avoid running it repeatedly.
+
+---
+
 ## Technology Stack
 
 | Area | Technology |
