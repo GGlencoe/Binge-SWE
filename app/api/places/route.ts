@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { Food } from '@/types/database'
+import { SwipeableItem } from '@/types/database'
 
 interface GooglePlace {
   place_id: string
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       }
     }))
 
-    const processedData: Food[] = detailedResults.map(({ place, detail }) => {
+    const processedData: SwipeableItem[] = detailedResults.map(({ place, detail }) => {
       // Map Google photos to URL
       let imageUrl = null
       if (place.photos && place.photos.length > 0) {
@@ -88,7 +88,6 @@ export async function GET(request: Request) {
       return {
         id: place.place_id,
         external_id: place.place_id,
-        type: 'restaurant',
         name: place.name,
         // Fallback to null if no description exists, removing the raw location address from the text box
         description: detail.editorial_summary?.overview || null,
