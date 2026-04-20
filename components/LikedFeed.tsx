@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -74,19 +75,25 @@ export default function LikedFeed() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
-    Promise.all([
-      fetch(`/api/liked?type=${tab}`).then((r) => r.json()),
-      fetch(`/api/saved?type=${tab}`).then((r) => r.json()),
-    ]).then(([liked, saved]) => {
-      setRows(liked.data ?? [])
-      const ids = new Set<string>(
-        (saved.data ?? []).map((s: { food_id: string | null; restaurant_id: string | null }) =>
-          tab === "food" ? s.food_id : s.restaurant_id
-        ).filter(Boolean)
-      )
-      setSavedIds(ids)
-    }).finally(() => setLoading(false))
+    async function load() {
+      setLoading(true)
+      try {
+        const [liked, saved] = await Promise.all([
+          fetch(`/api/liked?type=${tab}`).then((r) => r.json()),
+          fetch(`/api/saved?type=${tab}`).then((r) => r.json()),
+        ])
+        setRows(liked.data ?? [])
+        const ids = new Set<string>(
+          (saved.data ?? []).map((s: { food_id: string | null; restaurant_id: string | null }) =>
+            tab === "food" ? s.food_id : s.restaurant_id
+          ).filter(Boolean)
+        )
+        setSavedIds(ids)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [tab])
 
   const handleSave = async (itemId: string) => {

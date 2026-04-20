@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -61,11 +62,16 @@ export default function SavedFeed() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
-    fetch(`/api/saved?type=${tab}`)
-      .then((r) => r.json())
-      .then(({ data }) => setRows(data ?? []))
-      .finally(() => setLoading(false))
+    async function load() {
+      setLoading(true)
+      try {
+        const { data } = await fetch(`/api/saved?type=${tab}`).then((r) => r.json())
+        setRows(data ?? [])
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [tab])
 
   const handleRemove = async (id: string) => {
