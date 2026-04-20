@@ -14,12 +14,14 @@ function DraggableCard({
   onSave,
   isSaved,
   shadow,
+  mode,
 }: {
   item: SwipeableItem
   onSwipe: (dir: "left" | "right", item: SwipeableItem) => void
   onSave: (item: SwipeableItem) => void
   isSaved: boolean
   shadow: string
+  mode: "food" | "restaurant"
 }) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-25, 25])
@@ -39,7 +41,7 @@ function DraggableCard({
       className={`absolute rounded-2xl cursor-grab active:cursor-grabbing ${shadow}`}
       whileDrag={{ scale: 1.05 }}
     >
-      <SwipeCard item={item} onSave={() => onSave(item)} isSaved={isSaved} />
+      <SwipeCard item={item} onSave={() => onSave(item)} isSaved={isSaved} mode={mode} />
     </motion.div>
   )
 }
@@ -179,6 +181,7 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
                 onSave={handleSave}
                 isSaved={savedIds.has(item.id)}
                 shadow={isTop ? "shadow-2xl" : "shadow-none"}
+                mode={mode}
               />
             )
           })}

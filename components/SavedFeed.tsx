@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react"
 import { SwipeableItem } from "@/types/database"
-import { Utensils, Store, Trash2 } from "lucide-react"
+import { Utensils, Store, Trash2, ExternalLink, MapPin } from "lucide-react"
 import SegmentedControl from "./SegmentedControl"
 
 type SavedRow = {
@@ -13,22 +13,36 @@ type SavedRow = {
   restaurants: SwipeableItem | null
 }
 
+function getItemLink(item: SwipeableItem, type: "food" | "restaurant"): string {
+  if (type === "restaurant") {
+    if (item.external_id) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}&query_place_id=${item.external_id}`
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}`
+  }
+  // food → recipe search
+  return `https://www.google.com/search?q=${encodeURIComponent(item.name + " recipe")}`
+}
+
 function SavedCard({ row, onRemove }: { row: SavedRow; onRemove: (id: string) => void }) {
   const item = row.type === "food" ? row.foods : row.restaurants
   if (!item) return null
 
   const tags = [...(item.cuisine_type ?? []), ...(item.dietary_tags ?? [])]
+  const link = getItemLink(item, row.type)
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
       <div className="relative h-32 shrink-0">
-        {item.image_url ? (
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-            <span className="text-3xl">🍽️</span>
-          </div>
-        )}
+        <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+          {item.image_url ? (
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
+              <span className="text-3xl">🍽️</span>
+            </div>
+          )}
+        </a>
         <button
           onClick={() => onRemove(row.id)}
           className="absolute top-2 right-2 bg-white/80 rounded-full p-1 hover:bg-white transition"
@@ -38,7 +52,13 @@ function SavedCard({ row, onRemove }: { row: SavedRow; onRemove: (id: string) =>
         </button>
       </div>
       <div className="p-3 flex flex-col gap-1 flex-1">
-        <p className="font-medium text-gray-800 text-sm leading-tight">{item.name}</p>
+        <a href={link} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-800 text-sm leading-tight hover:text-orange-600 transition flex items-center gap-1">
+          {item.name}
+          {row.type === "restaurant"
+            ? <MapPin className="w-3 h-3 text-orange-400 shrink-0" />
+            : <ExternalLink className="w-3 h-3 text-orange-400 shrink-0" />
+          }
+        </a>
         {item.description && (
           <p className="text-xs text-gray-400 line-clamp-2">{item.description}</p>
         )}
@@ -56,8 +76,12 @@ function SavedCard({ row, onRemove }: { row: SavedRow; onRemove: (id: string) =>
   )
 }
 
-export default function SavedFeed() {
-  const [tab, setTab] = useState<"food" | "restaurant">("food")
+interface SavedFeedProps {
+  tab: "food" | "restaurant"
+  onTabChange: (tab: "food" | "restaurant") => void
+}
+
+export default function SavedFeed({ tab, onTabChange }: SavedFeedProps) {
   const [rows, setRows] = useState<SavedRow[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -88,7 +112,7 @@ export default function SavedFeed() {
             { value: "restaurant", label: "Restaurants", icon: <Store className="w-4 h-4" /> },
           ]}
           value={tab}
-          onChange={setTab}
+          onChange={onTabChange}
         />
       </div>
 
@@ -112,3 +136,4 @@ export default function SavedFeed() {
     </div>
   )
 }
+
