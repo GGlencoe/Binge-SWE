@@ -15,9 +15,7 @@ export default function RestaurantsPage() {
         <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
       </p>
 
-      {/* TODO: When restaurant rows exist in foods table (type='restaurant'),
-          this page will automatically start showing them — no code changes needed. */}
-      <SwipeDeck foodType="restaurant" />
+      <SwipeDeck mode="restaurant" />
 
     </main>
   )

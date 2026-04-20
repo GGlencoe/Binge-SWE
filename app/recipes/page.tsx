@@ -15,9 +15,7 @@ export default function RecipesPage() {
         <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
       </p>
 
-      {/* foodType="recipe" filters the deck to recipe rows only.
-          Change to "dish" or remove the prop entirely to show all types. */}
-      <SwipeDeck foodType="recipe" />
+      <SwipeDeck mode="food" />
 
     </main>
   )

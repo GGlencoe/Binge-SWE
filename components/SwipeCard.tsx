@@ -1,11 +1,13 @@
-import { Food } from "@/types/database"
+import { Bookmark, BookmarkCheck } from "lucide-react"
+import { SwipeableItem } from "@/types/database"
 
 type Props = {
-  item: Food
+  item: SwipeableItem
+  onSave?: () => void
+  isSaved?: boolean
 }
 
-export default function SwipeCard({ item }: Props) {
-  // Merge cuisine type and dietary tags into one tag list
+export default function SwipeCard({ item, onSave, isSaved }: Props) {
   const tags = [
     ...(item.cuisine_type ?? []),
     ...(item.dietary_tags ?? []),
@@ -14,7 +16,7 @@ export default function SwipeCard({ item }: Props) {
   return (
     <div className="w-80 h-[480px] rounded-2xl overflow-hidden bg-white select-none cursor-grab active:cursor-grabbing flex flex-col">
 
-      {/* Image — fixed height, fallback emoji if no URL */}
+      {/* Image */}
       <div className="relative w-full h-64 shrink-0">
         {item.image_url ? (
           <img
@@ -28,9 +30,24 @@ export default function SwipeCard({ item }: Props) {
             <span className="text-5xl">🍽️</span>
           </div>
         )}
+
+        {/* Save button */}
+        {onSave && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onSave() }}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute top-3 right-3 bg-white/85 backdrop-blur-sm rounded-full p-2 shadow transition hover:scale-110"
+            aria-label={isSaved ? "Saved" : "Save"}
+          >
+            {isSaved
+              ? <BookmarkCheck className="w-4 h-4 text-orange-500" />
+              : <Bookmark className="w-4 h-4 text-gray-500" />
+            }
+          </button>
+        )}
       </div>
 
-      {/* Content — scrollable description, fixed tags */}
+      {/* Content */}
       <div className="p-5 flex flex-col gap-3 flex-1 overflow-hidden pb-1">
         <h2 className="text-2xl font-bold text-gray-800 shrink-0">{item.name}</h2>
         <div className="overflow-y-auto flex-1 pr-2">

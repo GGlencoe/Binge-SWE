@@ -1,0 +1,11 @@
+☐ db
+    ☐ swipes -> foodswipes & restaurant swipes
+    ☐ swipes does not have a delete method
+    ☐ any other remaining mismatches between front/backend and database routes
+    ☐ add a restaurantswipes (same as swipes but for restaurants) and a resturants table (equivalent of foods table)
+    ☐ rename a swipes to foodswipes
+    ☐ favorites -> should be turned into saved. history is basically swipes but saved will be favorites (ignore for now)
+☐ recipes
+    ☐ get recipes in a db somehow
+☐ algorithm
+    ☐ swiping algorithm

@@ -13,19 +13,12 @@ export async function POST(request: Request) {
   }
 
   const { data: swipe, error } = await auth.supabase
-    .from('swipes')
+    .from('foodswipes')
     .upsert({ user_id: auth.user.id, food_id, direction }, { onConflict: 'user_id,food_id' })
     .select()
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  if (direction === 'like' || direction === 'super_like') {
-    await auth.supabase
-      .from('favorites')
-      .upsert({ user_id: auth.user.id, food_id }, { onConflict: 'user_id,food_id' })
-  }
-
   return NextResponse.json({ data: swipe }, { status: 201 })
 }
 
@@ -39,7 +32,7 @@ export async function GET(request: Request) {
   const from = (page - 1) * limit
 
   const { data, error, count } = await auth.supabase
-    .from('swipes')
+    .from('foodswipes')
     .select('*, foods(*)', { count: 'exact' })
     .eq('user_id', auth.user.id)
     .order('created_at', { ascending: false })

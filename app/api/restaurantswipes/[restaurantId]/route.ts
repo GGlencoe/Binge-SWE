@@ -3,18 +3,18 @@ import { requireUser } from '@/lib/auth'
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ foodId: string }> }
+  { params }: { params: Promise<{ restaurantId: string }> }
 ) {
   const auth = await requireUser()
   if (auth.unauthorized) return auth.unauthorized
 
-  const { foodId } = await params
+  const { restaurantId } = await params
 
   const { error } = await auth.supabase
-    .from('favorites')
+    .from('restaurantswipes')
     .delete()
     .eq('user_id', auth.user.id)
-    .eq('food_id', foodId)
+    .eq('restaurant_id', restaurantId)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return new NextResponse(null, { status: 204 })
