@@ -3,13 +3,24 @@
 
 import { useState, useEffect } from "react"
 import { SwipeableItem } from "@/types/database"
-import { Utensils, Store, Bookmark, BookmarkCheck } from "lucide-react"
+import { Utensils, Store, Bookmark, BookmarkCheck, ExternalLink, MapPin } from "lucide-react"
 import SegmentedControl from "./SegmentedControl"
 
 type LikedRow = {
   id: string
   foods?: SwipeableItem | null
   restaurants?: SwipeableItem | null
+}
+
+function getItemLink(item: SwipeableItem, type: "food" | "restaurant"): string {
+  if (type === "restaurant") {
+    if (item.external_id) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}&query_place_id=${item.external_id}`
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}`
+  }
+  // food → recipe search
+  return `https://www.google.com/search?q=${encodeURIComponent(item.name + " recipe")}`
 }
 
 function LikedCard({
@@ -27,17 +38,20 @@ function LikedCard({
   if (!item) return null
 
   const tags = [...(item.cuisine_type ?? []), ...(item.dietary_tags ?? [])]
+  const link = getItemLink(item, type)
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
       <div className="relative h-32 shrink-0">
-        {item.image_url ? (
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-            <span className="text-3xl">🍽️</span>
-          </div>
-        )}
+        <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+          {item.image_url ? (
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
+              <span className="text-3xl">🍽️</span>
+            </div>
+          )}
+        </a>
         <button
           onClick={() => onSave(item.id)}
           className="absolute top-2 right-2 bg-white/80 rounded-full p-1 hover:bg-white transition"
@@ -50,7 +64,13 @@ function LikedCard({
         </button>
       </div>
       <div className="p-3 flex flex-col gap-1 flex-1">
-        <p className="font-medium text-gray-800 text-sm leading-tight">{item.name}</p>
+        <a href={link} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-800 text-sm leading-tight hover:text-orange-600 transition flex items-center gap-1">
+          {item.name}
+          {type === "restaurant"
+            ? <MapPin className="w-3 h-3 text-orange-400 shrink-0" />
+            : <ExternalLink className="w-3 h-3 text-orange-400 shrink-0" />
+          }
+        </a>
         {item.description && (
           <p className="text-xs text-gray-400 line-clamp-2">{item.description}</p>
         )}
@@ -68,8 +88,12 @@ function LikedCard({
   )
 }
 
-export default function LikedFeed() {
-  const [tab, setTab] = useState<"food" | "restaurant">("food")
+interface LikedFeedProps {
+  tab: "food" | "restaurant"
+  onTabChange: (tab: "food" | "restaurant") => void
+}
+
+export default function LikedFeed({ tab, onTabChange }: LikedFeedProps) {
   const [rows, setRows] = useState<LikedRow[]>([])
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
@@ -117,7 +141,7 @@ export default function LikedFeed() {
             { value: "restaurant", label: "Restaurants", icon: <Store className="w-4 h-4" /> },
           ]}
           value={tab}
-          onChange={setTab}
+          onChange={onTabChange}
         />
       </div>
 

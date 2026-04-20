@@ -6,22 +6,36 @@ type Props = {
   item: SwipeableItem
   onSave?: () => void
   isSaved?: boolean
+  mode?: "food" | "restaurant"
 }
 
-export default function SwipeCard({ item, onSave, isSaved }: Props) {
+function getItemLink(item: SwipeableItem, mode: "food" | "restaurant"): string {
+  if (mode === "restaurant") {
+    if (item.external_id) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}&query_place_id=${item.external_id}`
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}`
+  }
+  // food → recipe search
+  return `https://www.google.com/search?q=${encodeURIComponent(item.name + " recipe")}`
+}
+
+export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Props) {
   const tags = [
     ...(item.cuisine_type ?? []),
     ...(item.dietary_tags ?? []),
   ]
 
+  const link = getItemLink(item, mode)
+
   return (
     <div className="w-80 h-[480px] rounded-2xl overflow-hidden bg-white select-none cursor-grab active:cursor-grabbing flex flex-col">
 
-      {/* Image — fixed height, fallback emoji if no URL, clicking opens map */}
+      {/* Image — fixed height, fallback emoji if no URL, clicking opens link */}
       <div className="relative w-full h-64 shrink-0">
         {item.image_url ? (
           <a
-            href={item.external_id ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}&query_place_id=${item.external_id}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name)}`}
+            href={link}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full h-full"
@@ -34,9 +48,16 @@ export default function SwipeCard({ item, onSave, isSaved }: Props) {
             />
           </a>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-            <span className="text-5xl">🍽️</span>
-          </div>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full h-full"
+          >
+            <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
+              <span className="text-5xl">🍽️</span>
+            </div>
+          </a>
         )}
 
         {/* Save button */}
@@ -100,3 +121,4 @@ export default function SwipeCard({ item, onSave, isSaved }: Props) {
     </div>
   )
 }
+
