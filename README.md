@@ -131,6 +131,14 @@ Spoonacular's free tier allows **150 API points per day**. Each seed run costs ~
 
 Use `--dry-run` to verify output without consuming your write quota or hitting the database. The flag still fetches from Spoonacular, so avoid running it repeatedly.
 
+The script checks how many Spoonacular recipes are already in the DB before fetching. If the count is at or above the limit (default: 500), it exits early without making any API calls. Override the limit with the `SEED_MAX` env var:
+
+```bash
+SEED_MAX=1000 npm run seed-recipes
+```
+
+Duplicate recipes are also handled at the DB level — upsert on `external_id` ensures the same recipe is never inserted twice regardless of how many times you run the script.
+
 ---
 
 ## Technology Stack

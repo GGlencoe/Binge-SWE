@@ -16,6 +16,7 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 const DRY_RUN = process.argv.includes('--dry-run')
+const MAX_RECIPES = parseInt(process.env.SEED_MAX ?? '500', 10)
 
 // Manual .env.local parsing — works on all shells/OSes regardless of --env-file support
 function loadEnv() {
@@ -116,6 +117,24 @@ function toRow(recipe) {
 
 async function main() {
   if (DRY_RUN) console.log('DRY RUN — nothing will be written to the database.\n')
+
+  // Check how many spoonacular recipes already exist to avoid wasting API points
+  const { count, error: countError } = await supabase
+    .from('foods')
+    .select('*', { count: 'exact', head: true })
+    .like('external_id', 'spoonacular_%')
+
+  if (countError) {
+    console.error('Could not query existing recipe count:', countError.message)
+  } else {
+    console.log(`Existing Spoonacular recipes in DB: ${count}`)
+    if (!DRY_RUN && count >= MAX_RECIPES) {
+      console.log(`DB already has ${count} recipes (max: ${MAX_RECIPES}). Nothing to do.`)
+      console.log('Set SEED_MAX env var higher to seed more, e.g. SEED_MAX=1000 npm run seed-recipes')
+      return
+    }
+  }
+
   console.log('Fetching recipes from Spoonacular...\n')
 
   const allRows = []
