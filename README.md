@@ -127,7 +127,7 @@ npm run dev   # http://localhost:3000
 
 ### Seeding recipes
 
-Spoonacular's free tier allows **150 API points per day**. Each seed run costs ~99 points (9 cuisines × ~11 calls). Run at most once daily.
+Spoonacular's free tier allows **50 API points per day**. Each seed run costs ~45 points (9 cuisines × 5 calls each). Run at most once daily.
 
 Use `--dry-run` to verify output without consuming your write quota or hitting the database. The flag still fetches from Spoonacular, so avoid running it repeatedly.
 

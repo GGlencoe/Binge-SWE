@@ -57,7 +57,7 @@ const CUISINES = [
   'Italian', 'Mexican', 'American', 'Indian',
   'Japanese', 'Chinese', 'Thai', 'Mediterranean', 'French',
 ]
-const PER_CUISINE = 10
+const PER_CUISINE = 4   // 9 cuisines × (1 search + 4 recipes) = 45 points — fits free tier (50/day)
 
 function stripHtml(html) {
   return (html ?? '').replace(/<[^>]*>/g, '').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim()

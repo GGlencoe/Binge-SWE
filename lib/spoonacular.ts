@@ -50,7 +50,7 @@ export function toFoodRow(recipe: SpoonacularRecipe) {
 
 export async function fetchRecipesByCuisines(
   cuisines: string[],
-  perCuisine = 10
+  perCuisine = 4
 ): Promise<SpoonacularRecipe[]> {
   const key = process.env.SPOONACULAR_API_KEY
   if (!key) throw new Error('SPOONACULAR_API_KEY not set')
