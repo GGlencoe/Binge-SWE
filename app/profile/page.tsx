@@ -7,10 +7,12 @@ import SavedFeed from "@/components/SavedFeed"
 import SegmentedControl from "@/components/SegmentedControl"
 
 type Section = "liked" | "saved"
+type SubTab = "food" | "restaurant"
 
 export default function Profile() {
   const [username, setUsername] = useState("User")
   const [section, setSection] = useState<Section>("liked")
+  const [subTab, setSubTab] = useState<SubTab>("food")
 
   useEffect(() => {
     fetch("/api/users/me")
@@ -45,7 +47,7 @@ export default function Profile() {
           />
         </div>
 
-        {section === "liked" ? <LikedFeed /> : <SavedFeed />}
+        {section === "liked" ? <LikedFeed tab={subTab} onTabChange={setSubTab} /> : <SavedFeed tab={subTab} onTabChange={setSubTab} />}
 
       </div>
     </main>
