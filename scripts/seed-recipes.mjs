@@ -52,12 +52,17 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !SPOONACULAR_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-// These are the valid Spoonacular cuisine values — 'Asian' is NOT valid
-const CUISINES = [
-  'Italian', 'Mexican', 'American', 'Indian',
-  'Japanese', 'Chinese', 'Thai', 'Mediterranean', 'French',
+// Rotates through 3 groups of 3 cuisines daily.
+// Each run: 3 cuisines × (1 search + 15 recipes) = 48 points — fits free tier (50/day).
+// All 9 cuisines covered every 3 days, yielding 45 recipes/run vs 36 with a flat approach.
+const CUISINE_GROUPS = [
+  ['Italian', 'Mexican', 'American'],
+  ['Indian', 'Japanese', 'Chinese'],
+  ['Thai', 'Mediterranean', 'French'],
 ]
-const PER_CUISINE = 4   // 9 cuisines × (1 search + 4 recipes) = 45 points — fits free tier (50/day)
+const dayIndex = Math.floor(Date.now() / 86_400_000) // days since epoch
+const CUISINES = CUISINE_GROUPS[dayIndex % 3]
+const PER_CUISINE = 15
 
 function stripHtml(html) {
   return (html ?? '').replace(/<[^>]*>/g, '').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim()
