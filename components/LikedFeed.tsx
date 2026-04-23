@@ -64,7 +64,7 @@ function LikedCard({
         <button
           onClick={() => onSave(item.id)}
           className="absolute top-2 right-2 bg-white/80 rounded-full p-1 hover:bg-white transition"
-          aria-label={saved ? "Already saved" : "Save"}
+          aria-label={saved ? "Remove from saved" : "Save"}
         >
           {saved
             ? <BookmarkCheck className="w-4 h-4 text-orange-500" />
@@ -130,14 +130,29 @@ export default function LikedFeed({ tab, onTabChange }: LikedFeedProps) {
   }, [tab])
 
   const handleSave = async (itemId: string) => {
-    if (savedIds.has(itemId)) return
-    const res = await fetch("/api/saved", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ item_id: itemId, type: tab }),
-    })
-    if (res.ok) {
-      setSavedIds((prev) => new Set(prev).add(itemId))
+    const isSaved = savedIds.has(itemId)
+    if (isSaved) {
+      // Unsave
+      const res = await fetch(`/api/saved?item_id=${itemId}&type=${tab}`, {
+        method: "DELETE",
+      })
+      if (res.ok || res.status === 204) {
+        setSavedIds((prev) => {
+          const next = new Set(prev)
+          next.delete(itemId)
+          return next
+        })
+      }
+    } else {
+      // Save
+      const res = await fetch("/api/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_id: itemId, type: tab }),
+      })
+      if (res.ok) {
+        setSavedIds((prev) => new Set(prev).add(itemId))
+      }
     }
   }
 

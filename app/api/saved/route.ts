@@ -59,3 +59,28 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ data }, { status: 201 })
 }
+
+export async function DELETE(request: Request) {
+  const auth = await requireUser()
+  if (auth.unauthorized) return auth.unauthorized
+
+  const { searchParams } = new URL(request.url)
+  const item_id = searchParams.get('item_id')
+  const type = searchParams.get('type') as SavedType
+
+  if (!item_id || !type) {
+    return NextResponse.json({ error: 'item_id and type are required' }, { status: 400 })
+  }
+
+  const idColumn = type === 'food' ? 'food_id' : 'restaurant_id'
+
+  const { error } = await auth.supabase
+    .from('saved')
+    .delete()
+    .eq('user_id', auth.user.id)
+    .eq('type', type)
+    .eq(idColumn, item_id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return new NextResponse(null, { status: 204 })
+}

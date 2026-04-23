@@ -174,15 +174,33 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
   }
 
   const handleSave = async (item: SwipeableItem) => {
-    if (savedIds.has(item.id)) return
-    const res = await fetch("/api/saved", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ item_id: item.id, type: mode === "restaurant" ? "restaurant" : "food" }),
-    })
-    if (res.ok) {
-      setSavedIds((prev) => new Set(prev).add(item.id))
-      setLastAction(`Saved ${item.name}`)
+    const isSaved = savedIds.has(item.id)
+    const type = mode === "restaurant" ? "restaurant" : "food"
+
+    if (isSaved) {
+      // Unsave
+      const res = await fetch(`/api/saved?item_id=${item.id}&type=${type}`, {
+        method: "DELETE",
+      })
+      if (res.ok || res.status === 204) {
+        setSavedIds((prev) => {
+          const next = new Set(prev)
+          next.delete(item.id)
+          return next
+        })
+        setLastAction(`Removed ${item.name} from saved`)
+      }
+    } else {
+      // Save
+      const res = await fetch("/api/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_id: item.id, type }),
+      })
+      if (res.ok) {
+        setSavedIds((prev) => new Set(prev).add(item.id))
+        setLastAction(`Saved ${item.name}`)
+      }
     }
   }
 
