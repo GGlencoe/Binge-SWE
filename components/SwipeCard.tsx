@@ -25,7 +25,7 @@ export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Prop
   const pointerStart = useRef<{ x: number, y: number, time: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    pointerStart.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    pointerStart.current = { x: e.clientX, y: e.clientY, time: e.timeStamp };
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -33,7 +33,7 @@ export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Prop
     const dx = e.clientX - pointerStart.current.x;
     const dy = e.clientY - pointerStart.current.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const timeElapsed = Date.now() - pointerStart.current.time;
+    const timeElapsed = e.timeStamp - pointerStart.current.time;
 
     // If it's a short tap/click with minimal movement, open the link
     if (distance < 10 && timeElapsed < 500) {
