@@ -111,20 +111,18 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
     setLastAction(dir === "right" ? `Liked ${item.name}` : `Skipped ${item.name}`)
 
     const direction = dir === "right" ? "like" : "skip"
-    if (!apiEndpoint) {
-      if (mode === "restaurant") {
-        fetch("/api/restaurantswipes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ restaurant_id: item.id, direction }),
-        })
-      } else {
-        fetch("/api/foodswipes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ food_id: item.id, direction }),
-        })
-      }
+    if (mode === "restaurant") {
+      fetch("/api/restaurantswipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restaurant_id: item.id, direction }),
+      })
+    } else {
+      fetch("/api/foodswipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ food_id: item.id, direction }),
+      })
     }
   }
 

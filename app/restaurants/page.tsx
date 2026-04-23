@@ -16,7 +16,7 @@ export default function RestaurantsPage() {
         <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
       </p>
 
-      <SwipeDeck mode="restaurant" />
+      <SwipeDeck mode="restaurant" apiEndpoint="/api/places" />
 
     </main>
   )

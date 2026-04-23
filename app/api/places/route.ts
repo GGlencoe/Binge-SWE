@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server'
 import { SwipeableItem } from '@/types/database'
+import { createClient } from '@supabase/supabase-js'
+import { requireUser } from '@/lib/auth'
+import crypto from 'crypto'
+
+function generateDeterministicUUID(str: string) {
+  const hash = crypto.createHash('sha256').update(str).digest('hex')
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`
+}
 
 interface GooglePlace {
   place_id: string
@@ -25,13 +33,19 @@ const FOOD_KEYWORDS = [
 ];
 
 export async function GET(request: Request) {
+  const auth = await requireUser()
+  if (auth.unauthorized) return auth.unauthorized
+
   const apiKey = process.env.GOOGLE_API_KEY
   if (!apiKey) {
     return NextResponse.json({ error: 'Google API key is missing' }, { status: 500 })
   }
 
   const { searchParams } = new URL(request.url)
-  const query = searchParams.get('query') || 'restaurants'
+  let query = searchParams.get('query')
+  if (!query || query === 'restaurants') {
+    query = FOOD_KEYWORDS[Math.floor(Math.random() * FOOD_KEYWORDS.length)] + ' restaurants'
+  }
 
   // Use Text Search API to easily get restaurants
   const googleApiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&type=restaurant&key=${apiKey}`
@@ -85,8 +99,10 @@ export async function GET(request: Request) {
         ? matchedTags.slice(0, 3).map((kw: string) => kw.charAt(0).toUpperCase() + kw.slice(1))
         : fallbackTags
 
+      const id = generateDeterministicUUID(place.place_id)
+
       return {
-        id: place.place_id,
+        id,
         external_id: place.place_id,
         name: place.name,
         // Fallback to null if no description exists, removing the raw location address from the text box
@@ -109,7 +125,46 @@ export async function GET(request: Request) {
       }
     })
 
-    return NextResponse.json({ data: processedData })
+    // Upsert to DB so foreign keys for swipes work using the Service Role Key to bypass RLS
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { error: dbError } = await supabaseAdmin
+      .from('restaurants')
+      .upsert(processedData.map(p => ({
+        id: p.id,
+        external_id: p.external_id,
+        name: p.name,
+        description: p.description,
+        image_url: p.image_url,
+        cuisine_type: p.cuisine_type,
+        dietary_tags: p.dietary_tags,
+        price_range: p.price_range,
+        rating: p.rating,
+        location: p.location,
+        metadata: p.metadata
+      })), { onConflict: 'id' })
+
+    if (dbError) {
+      console.error("Error upserting restaurants:", dbError.message)
+    }
+
+    // Filter out already swiped ones
+    const { data: allSwipes } = await auth.supabase
+      .from('restaurantswipes')
+      .select('restaurant_id')
+      .eq('user_id', auth.user.id)
+      .in('restaurant_id', processedData.map(p => p.id))
+
+    const swipedIds = new Set((allSwipes ?? []).map(s => s.restaurant_id))
+    const unswipedData = processedData.filter(p => !swipedIds.has(p.id))
+
+    // Fallback if all were somehow already swiped
+    const finalData = unswipedData.length > 0 ? unswipedData : processedData;
+
+    return NextResponse.json({ data: finalData })
   } catch (err: unknown) {
     const error = err as Error
     return NextResponse.json({ error: error.message }, { status: 500 })
