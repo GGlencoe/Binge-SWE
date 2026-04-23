@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react"
 import { SwipeableItem } from "@/types/database"
-import { Utensils, Store, Bookmark, BookmarkCheck, ExternalLink, MapPin } from "lucide-react"
+import { Utensils, Store, Bookmark, BookmarkCheck, ExternalLink, MapPin, Trash2 } from "lucide-react"
 import SegmentedControl from "./SegmentedControl"
 
 type LikedRow = {
@@ -27,11 +27,13 @@ function LikedCard({
   row,
   type,
   onSave,
+  onRemoveLike,
   saved,
 }: {
   row: LikedRow
   type: "food" | "restaurant"
   onSave: (itemId: string) => void
+  onRemoveLike: (itemId: string) => void
   saved: boolean
 }) {
   const item = type === "food" ? row.foods : row.restaurants
@@ -52,6 +54,13 @@ function LikedCard({
             </div>
           )}
         </a>
+        <button
+          onClick={() => onRemoveLike(item.id)}
+          className="absolute top-2 left-2 bg-white/80 rounded-full p-1 hover:bg-white transition"
+          aria-label="Remove from Liked"
+        >
+          <Trash2 className="w-4 h-4 text-red-400" />
+        </button>
         <button
           onClick={() => onSave(item.id)}
           className="absolute top-2 right-2 bg-white/80 rounded-full p-1 hover:bg-white transition"
@@ -132,6 +141,17 @@ export default function LikedFeed({ tab, onTabChange }: LikedFeedProps) {
     }
   }
 
+  const handleRemoveLike = async (itemId: string) => {
+    const endpoint = tab === "food" ? `/api/foodswipes/${itemId}` : `/api/restaurantswipes/${itemId}`
+    const res = await fetch(endpoint, { method: "DELETE" })
+    if (res.ok || res.status === 204) {
+      setRows((prev) => prev.filter((r) => {
+        const item = tab === "food" ? r.foods : r.restaurants;
+        return item?.id !== itemId;
+      }))
+    }
+  }
+
   return (
     <div>
       <div className="mb-4">
@@ -163,6 +183,7 @@ export default function LikedFeed({ tab, onTabChange }: LikedFeedProps) {
               row={row}
               type={tab}
               onSave={handleSave}
+              onRemoveLike={handleRemoveLike}
               saved={savedIds.has(
                 tab === "food" ? (row.foods?.id ?? "") : (row.restaurants?.id ?? "")
               )}
