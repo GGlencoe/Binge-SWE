@@ -137,12 +137,40 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
     onSwipe(dir, topItem)
   }
 
-  const handleUndo = () => {
-    if (history.length === 0) return
-    const lastItem = history[history.length - 1]
-    setHistory((prev) => prev.slice(0, -1))
-    setItems((prev) => [...prev, lastItem])
-    setLastAction(`Undo — ${lastItem.name}`)
+  const undoingRef = useRef(false)
+
+  const handleUndo = async () => {
+    if (undoingRef.current) return
+
+    let lastItem: SwipeableItem | undefined
+
+    setHistory((prev) => {
+      if (prev.length === 0) return prev
+      lastItem = prev[prev.length - 1]
+      return prev.slice(0, -1)
+    })
+    await Promise.resolve()
+    if (!lastItem) return
+    undoingRef.current = true
+
+    try {
+      const endpoint =
+        mode === "restaurant"
+          ? `/api/restaurantswipes/${lastItem.id}`
+          : `/api/foodswipes/${lastItem.id}`
+
+      await fetch(endpoint, { method: "DELETE" })
+
+      seenIds.current.delete(lastItem.id)
+
+      setItems((prev) =>
+        prev.some((item) => item.id === lastItem!.id) ? prev : [...prev, lastItem!]
+      )
+
+      setLastAction(`Undo — ${lastItem.name}`)
+    } finally {
+      undoingRef.current = false
+    }
   }
 
   const handleSave = async (item: SwipeableItem) => {
