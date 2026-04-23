@@ -62,6 +62,7 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
   const hasItems = useRef(false)
+  const seenIds = useRef<Set<string>>(new Set())
 
   // ── Fetch (called on load and on every auto-cycle) ───────────────────────
   const load = async () => {
@@ -71,7 +72,9 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
       const res = await fetch(endpoint)
       if (!res.ok) return
       const { data } = await res.json()
-      const fetched: SwipeableItem[] = data ?? []
+      const fetched: SwipeableItem[] = (data ?? []).filter(
+        (item: SwipeableItem) => !seenIds.current.has(item.id)
+      )
       hasItems.current = fetched.length > 0
       setItems(fetched)
       setHistory([])
@@ -80,7 +83,10 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
     }
   }
 
-  useEffect(() => { load() }, [mode, apiEndpoint]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    seenIds.current = new Set()
+    load()
+  }, [mode, apiEndpoint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Re-fetch when deck empties (gets fresh algorithm results) ────────────
   useEffect(() => {
@@ -95,6 +101,7 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
 
   // ── Swipe handlers ───────────────────────────────────────────────────────
   const onSwipe = (dir: "left" | "right", item: SwipeableItem) => {
+    seenIds.current.add(item.id)
     setHistory((prev) => [...prev, item])
     setItems((prev) => prev.filter((i) => i.id !== item.id))
     setLastAction(dir === "right" ? `Liked ${item.name}` : `Skipped ${item.name}`)

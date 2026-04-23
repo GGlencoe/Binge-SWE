@@ -106,6 +106,12 @@ async function fetchCuisine(cuisine) {
   return json.results ?? []
 }
 
+function toInstructions(analyzedInstructions) {
+  return (analyzedInstructions ?? [])
+    .flatMap(section => section.steps ?? [])
+    .map(s => ({ number: s.number, step: s.step }))
+}
+
 function toRow(recipe) {
   return {
     external_id:  `spoonacular_${recipe.id}`,
@@ -118,7 +124,11 @@ function toRow(recipe) {
     price_range:  toPriceRange(recipe.pricePerServing),
     rating:       toRating(recipe.spoonacularScore),
     location:     null,
-    metadata:     {},
+    metadata:     {
+      instructions:   toInstructions(recipe.analyzedInstructions),
+      readyInMinutes: recipe.readyInMinutes ?? null,
+      servings:       recipe.servings ?? null,
+    },
   }
 }
 

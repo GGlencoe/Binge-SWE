@@ -4,6 +4,11 @@ export const SPOONACULAR_CUISINES = [
   'Japanese', 'Chinese', 'Thai', 'Mediterranean', 'French',
 ] as const
 
+export type SpoonacularInstruction = {
+  number: number
+  step: string
+}
+
 export type SpoonacularRecipe = {
   id: number
   title: string
@@ -13,6 +18,9 @@ export type SpoonacularRecipe = {
   diets: string[]
   pricePerServing?: number
   spoonacularScore?: number
+  readyInMinutes?: number
+  servings?: number
+  analyzedInstructions?: { steps: { number: number; step: string }[] }[]
 }
 
 function stripHtml(html: string) {
@@ -32,6 +40,12 @@ function toRating(score: number | null | undefined): number | null {
   return Math.round((score / 20) * 100) / 100
 }
 
+function toInstructions(analyzedInstructions: SpoonacularRecipe['analyzedInstructions']): SpoonacularInstruction[] {
+  return (analyzedInstructions ?? [])
+    .flatMap(section => section.steps ?? [])
+    .map(s => ({ number: s.number, step: s.step }))
+}
+
 export function toFoodRow(recipe: SpoonacularRecipe) {
   return {
     external_id: `spoonacular_${recipe.id}`,
@@ -44,7 +58,11 @@ export function toFoodRow(recipe: SpoonacularRecipe) {
     price_range: toPriceRange(recipe.pricePerServing),
     rating: toRating(recipe.spoonacularScore),
     location: null,
-    metadata: {} as Record<string, unknown>,
+    metadata: {
+      instructions: toInstructions(recipe.analyzedInstructions),
+      readyInMinutes: recipe.readyInMinutes ?? null,
+      servings: recipe.servings ?? null,
+    } as Record<string, unknown>,
   }
 }
 
