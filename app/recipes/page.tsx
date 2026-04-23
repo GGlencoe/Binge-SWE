@@ -5,7 +5,7 @@ import SwipeDeck from "@/components/SwipeDeck"
 
 export default function RecipesPage() {
   return (
-    <main className="min-h-screen bg-orange-50 flex flex-col items-center justify-center p-8">
+    <main className="fixed inset-0 pb-20 bg-orange-50 flex flex-col items-center justify-center p-8">
 
       {/* Logo */}
       <div>

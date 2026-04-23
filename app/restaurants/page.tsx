@@ -5,7 +5,7 @@ import SwipeDeck from "@/components/SwipeDeck"
 
 export default function RestaurantsPage() {
   return (
-    <main className="min-h-screen bg-orange-50 flex flex-col items-center justify-center p-8">
+    <main className="fixed inset-0 pb-20 bg-orange-50 flex flex-col items-center justify-center p-8">
 
       {/* Logo */}
       <div>
@@ -16,7 +16,7 @@ export default function RestaurantsPage() {
         <strong>Swipe</strong> ← <strong>left</strong> to skip &nbsp;|&nbsp; Swipe <strong>right</strong> → to like
       </p>
 
-      <SwipeDeck mode="restaurant" />
+      <SwipeDeck mode="restaurant" apiEndpoint="/api/places" />
 
     </main>
   )

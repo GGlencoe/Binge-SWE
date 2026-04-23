@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { useRef } from "react"
 import { Bookmark, BookmarkCheck } from "lucide-react"
 import { SwipeableItem } from "@/types/database"
 
@@ -21,6 +22,26 @@ function getItemLink(item: SwipeableItem, mode: "food" | "restaurant"): string {
 }
 
 export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Props) {
+  const pointerStart = useRef<{ x: number, y: number, time: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStart.current = { x: e.clientX, y: e.clientY, time: e.timeStamp };
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!pointerStart.current) return;
+    const dx = e.clientX - pointerStart.current.x;
+    const dy = e.clientY - pointerStart.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const timeElapsed = e.timeStamp - pointerStart.current.time;
+
+    // If it's a short tap/click with minimal movement, open the link
+    if (distance < 10 && timeElapsed < 500) {
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }
+    pointerStart.current = null;
+  };
+
   const tags = [
     ...(item.cuisine_type ?? []),
     ...(item.dietary_tags ?? []),
@@ -32,32 +53,30 @@ export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Prop
     <div className="w-80 h-[480px] rounded-2xl overflow-hidden bg-white select-none cursor-grab active:cursor-grabbing flex flex-col">
 
       {/* Image — fixed height, fallback emoji if no URL, clicking opens link */}
-      <div className="relative w-full h-64 shrink-0">
+      <div className="relative w-full h-56 shrink-0">
         {item.image_url ? (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full h-full"
+          <div
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            className="block w-full h-full cursor-pointer"
           >
             <img
               src={item.image_url}
               alt={item.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover pointer-events-none"
               draggable={false}
             />
-          </a>
+          </div>
         ) : (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full h-full"
+          <div
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            className="block w-full h-full cursor-pointer"
           >
             <div className="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-              <span className="text-5xl">🍽️</span>
+              <span className="text-5xl pointer-events-none">🍽️</span>
             </div>
-          </a>
+          </div>
         )}
 
         {/* Save button */}
@@ -78,7 +97,7 @@ export default function SwipeCard({ item, onSave, isSaved, mode = "food" }: Prop
 
       {/* Content */}
       <div className="p-5 flex flex-col gap-3 flex-1 overflow-hidden pb-1">
-        <h2 className="text-2xl font-bold text-gray-800 shrink-0">{item.name}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 shrink-0 line-clamp-2" title={item.name}>{item.name}</h2>
         <div className="overflow-y-auto flex-1 pr-2">
           {item.description && (
             <p className="text-gray-500 text-sm break-words whitespace-pre-wrap mb-2">
