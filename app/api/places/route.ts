@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('query') || 'restaurants'
-  
+
   // Use Text Search API to easily get restaurants
   const googleApiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&type=restaurant&key=${apiKey}`
 
@@ -81,8 +81,8 @@ export async function GET(request: Request) {
         .map((t: string) => t.replace(/_/g, ' '))
         .slice(0, 3)
 
-      const tags = matchedTags.length > 0 
-        ? matchedTags.slice(0, 3).map((kw: string) => kw.charAt(0).toUpperCase() + kw.slice(1)) 
+      const tags = matchedTags.length > 0
+        ? matchedTags.slice(0, 3).map((kw: string) => kw.charAt(0).toUpperCase() + kw.slice(1))
         : fallbackTags
 
       return {

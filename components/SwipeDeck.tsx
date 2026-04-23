@@ -15,6 +15,7 @@ function DraggableCard({
   isSaved,
   shadow,
   mode,
+  zIndex,
 }: {
   item: SwipeableItem
   onSwipe: (dir: "left" | "right", item: SwipeableItem) => void
@@ -22,6 +23,7 @@ function DraggableCard({
   isSaved: boolean
   shadow: string
   mode: "food" | "restaurant"
+  zIndex: number
 }) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-25, 25])
@@ -34,7 +36,7 @@ function DraggableCard({
 
   return (
     <motion.div
-      style={{ x, rotate, opacity }}
+      style={{ x, rotate, opacity, zIndex }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
@@ -62,10 +64,14 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
   const hasItems = useRef(false)
+  const fetchingRef = useRef(false)
 
-  // ── Fetch (called on load and on every auto-cycle) ───────────────────────
-  const load = async () => {
-    setLoading(true)
+  // ── Fetch (called on load and for background pre-fetching) ───────────────
+  const fetchBatch = async (initial = false) => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
+    if (initial) setLoading(true)
+
     try {
       const endpoint = apiEndpoint ?? (mode === "restaurant" ? "/api/restaurants" : "/api/recommendations")
       const res = await fetch(endpoint)
@@ -73,23 +79,28 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
       const { data } = await res.json()
       const fetched: SwipeableItem[] = data ?? []
       hasItems.current = fetched.length > 0
-      setItems(fetched)
-      setHistory([])
+
+      setItems((prev) => {
+        const existingIds = new Set(prev.map(i => i.id))
+        const newItems = fetched.filter(i => !existingIds.has(i.id))
+        return [...newItems, ...prev]
+      })
+      if (initial) setHistory([])
     } finally {
-      setLoading(false)
+      fetchingRef.current = false
+      if (initial) setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [mode, apiEndpoint]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Re-fetch when deck empties (gets fresh algorithm results) ────────────
   useEffect(() => {
-    if (!loading && items.length === 0 && hasItems.current) {
-      const t = setTimeout(() => {
-        setLastAction("Refreshing picks… 🔄")
-        load()
-      }, 1500)
-      return () => clearTimeout(t)
+    setItems([])
+    fetchBatch(true)
+  }, [mode, apiEndpoint]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Pre-fetch next batch seamlessly when running low ─────────────────────
+  useEffect(() => {
+    if (!loading && items.length <= 3 && hasItems.current && !fetchingRef.current) {
+      fetchBatch(false)
     }
   }, [items.length, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -171,8 +182,9 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
     <div className="flex flex-col items-center">
       <div className="relative w-80 h-[480px]">
         <AnimatePresence>
-          {items.map((item, index) => {
-            const isTop = index === items.length - 1
+          {[...items].reverse().map((item, reverseIndex) => {
+            const isTop = reverseIndex === 0
+            const zIndex = items.length - reverseIndex
             return (
               <DraggableCard
                 key={item.id}
@@ -182,13 +194,14 @@ export default function SwipeDeck({ mode = "food", apiEndpoint }: SwipeDeckProps
                 isSaved={savedIds.has(item.id)}
                 shadow={isTop ? "shadow-2xl" : "shadow-none"}
                 mode={mode}
+                zIndex={zIndex}
               />
             )
           })}
         </AnimatePresence>
       </div>
 
-      <div className="flex gap-4 mt-4 z-10">
+      <div className="flex gap-4 mt-4 relative z-50">
         <button
           onClick={() => handleSwipeButton("left")}
           disabled={items.length === 0}
