@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Sparkles, Loader2, X, ExternalLink, MapPin } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { SwipeableItem } from "@/types/database"
+import Image from "next/image"
 
 interface Recommendation {
   id: string
@@ -48,8 +49,8 @@ export default function AiRecommendation({ type, source }: AiRecommendationProps
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to get recommendations")
       setResults(data.recommendations)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)
     }
@@ -135,9 +136,11 @@ export default function AiRecommendation({ type, source }: AiRecommendationProps
                     className="flex gap-4 p-4 rounded-2xl bg-orange-50/50 hover:bg-orange-50 transition-colors"
                   >
                     {rec.item.image_url ? (
-                      <img
+                      <Image
                         src={rec.item.image_url}
                         alt={rec.item.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-xl object-cover shrink-0"
                       />
                     ) : (
@@ -162,7 +165,7 @@ export default function AiRecommendation({ type, source }: AiRecommendationProps
                         </a>
                       </div>
                       <p className="text-xs text-orange-600 mt-1 font-medium italic">
-                        "{rec.reason}"
+                        &quot;{rec.reason}&quot;
                       </p>
                     </div>
                   </motion.div>

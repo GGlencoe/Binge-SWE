@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import type { SavedType } from '@/types/database'
+import type { SavedType, SwipeableItem } from '@/types/database'
 
 export async function POST(request: Request) {
   const auth = await requireUser()
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   }
 
   // 1. Fetch items
-  let items: any[] = []
+  let items: SwipeableItem[] = []
   if (source === 'liked') {
     const table = type === 'food' ? 'foodswipes' : 'restaurantswipes'
     const select = type === 'food' ? '*, foods(*)' : '*, restaurants(*)'
@@ -100,17 +100,18 @@ export async function POST(request: Request) {
     const recommendations = JSON.parse(jsonMatch[0])
     
     // Attach full item data to recommendations
-    const enrichedRecommendations = recommendations.recommendations.map((rec: any) => {
+    const enrichedRecommendations = recommendations.recommendations.map((rec: { id: string; reason: string }) => {
       const fullItem = items.find(i => i.id === rec.id)
       return {
         ...rec,
         item: fullItem
       }
-    }).filter((r: any) => r.item)
+    }).filter((r: { id: string; reason: string; item?: SwipeableItem }) => r.item)
 
     return NextResponse.json({ recommendations: enrichedRecommendations })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gemini Error:', error)
-    return NextResponse.json({ error: 'Failed to generate recommendations: ' + error.message }, { status: 500 })
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: 'Failed to generate recommendations: ' + message }, { status: 500 })
   }
 }
