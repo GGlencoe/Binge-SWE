@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       let imageUrl = null
       if (place.photos && place.photos.length > 0) {
         const photoRef = place.photos[0].photo_reference
-        imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photoRef}&key=${apiKey}`
+        imageUrl = `/api/photo?ref=${photoRef}&maxwidth=800`
       }
 
       // Concatenate summary and reviews to extract keywords
