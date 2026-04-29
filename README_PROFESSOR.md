@@ -1,32 +1,19 @@
-# Binge App - Running via Docker
+#Running via Docker
 
-This guide explains how to pull and run the application using Docker.
+#Requirement
+-The `.env` file provided with this submission (contains API keys and database credentials).
 
-## Requirements
-- Docker and Docker Compose installed on your machine.
-- The `.env.example` file provided with this submission (contains API keys and database credentials).
+#Setup
+1. Make sure these two files are in the same directory:
+   -`docker-compose.prod.yml`
+   -`.env`
 
-## Setup Instructions
+2. Open a terminal in that directory and run:
+`bash docker compose -f docker-compose.prod.yml up -d`
 
-1. Ensure you have the following two files in the same directory:
-   - `docker-compose.prod.yml`
-   - `.env`
+3. Open your browser and go to **http://localhost:3000**
 
-2. Open a terminal in that directory and run the following command to pull and start the application:
-
-```bash
-docker compose -f docker-compose.prod.yml up -d
-```
-
-*Note: This will download the pre-built image (`garrettglencoe/binge-swe:latest`) from Docker Hub and start it in the background.*
-
-3. Once the container is running, open your browser and navigate to:
-   **http://localhost:3000**
-
-## Stopping the App
-To stop the application, run:
-```bash
-docker compose -f docker-compose.prod.yml down
-```
+#Stopping the App
+`bash docker compose -f docker-compose.prod.yml down`
 
 

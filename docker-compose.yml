@@ -4,15 +4,15 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Public keys needed at build time (inlined into client JS).
-        # These are NOT secret — they are the same keys your browser already sees.
+
+        
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 
     ports:
       - "3000:3000"
 
-    # Secret keys are injected at RUNTIME only — never baked into the image.
+
     environment:
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
