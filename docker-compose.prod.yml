@@ -1,0 +1,11 @@
+services:
+  app:
+    image: garrettglencoe/binge-swe:latest
+    ports:
+      - "3000:3000"
+    
+    # This will automatically read from the .env file in the same directory
+    env_file:
+      - .env
+
+    restart: unless-stopped
